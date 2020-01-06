@@ -1,17 +1,19 @@
 package com.zhangpeng.account.core.service;
 
+import com.alibaba.dubbo.config.annotation.Service;
 import com.zhangpeng.account.api.domain.AccountHistory;
 import com.zhangpeng.account.api.service.AccountHistoryService;
 import com.zhangpeng.account.core.mapper.AccountHistoryMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 /**
  * 账户历史service实现类
  */
 @Slf4j
-@Service("accountHistoryService")
+@Service(timeout = 60000,retries = 0,interfaceClass = AccountHistoryService.class)
+@Component("accountHistoryService")
 public class AccountHistoryServiceImpl implements AccountHistoryService {
 
 	@Autowired

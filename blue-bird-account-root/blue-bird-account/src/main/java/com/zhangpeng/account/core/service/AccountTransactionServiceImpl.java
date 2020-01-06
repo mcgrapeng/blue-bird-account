@@ -1,5 +1,6 @@
 package com.zhangpeng.account.core.service;
 
+import com.alibaba.dubbo.config.annotation.Service;
 import com.zhangpeng.account.api.domain.Account;
 import com.zhangpeng.account.api.domain.AccountHistory;
 import com.zhangpeng.account.api.enums.AccountFundDirectionEnum;
@@ -14,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -26,7 +27,8 @@ import java.util.Map;
  * 账户操作service实现类
  */
 @Slf4j
-@Service("accountTransactionService")
+@Service(timeout = 60000,retries = 0,interfaceClass = AccountTransactionService.class)
+@Component("accountTransactionService")
 public class AccountTransactionServiceImpl implements AccountTransactionService {
 	
 	private static final Log LOG = LogFactory.getLog(AccountTransactionServiceImpl.class);

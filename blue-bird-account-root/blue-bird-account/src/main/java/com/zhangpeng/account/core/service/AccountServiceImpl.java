@@ -1,18 +1,20 @@
 
 package com.zhangpeng.account.core.service;
 
+import com.alibaba.dubbo.config.annotation.Service;
 import com.zhangpeng.account.api.domain.Account;
 import com.zhangpeng.account.api.service.AccountService;
 import com.zhangpeng.account.core.mapper.AccountMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 /**
  * 账户service实现类
  */
 @Slf4j
-@Service("accountService")
+@Service(timeout = 60000,retries = 0,interfaceClass = AccountService.class)
+@Component("accountService")
 public class AccountServiceImpl implements AccountService {
 
 	@Autowired

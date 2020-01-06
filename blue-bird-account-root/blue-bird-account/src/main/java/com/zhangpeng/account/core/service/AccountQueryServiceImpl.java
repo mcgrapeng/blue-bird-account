@@ -1,5 +1,6 @@
 package com.zhangpeng.account.core.service;
 
+import com.alibaba.dubbo.config.annotation.Service;
 import com.google.common.collect.Maps;
 import com.zhangpeng.account.api.PageBean;
 import com.zhangpeng.account.api.PageParam;
@@ -13,7 +14,7 @@ import com.zhangpeng.account.core.mapper.AccountHistoryMapper;
 import com.zhangpeng.account.core.mapper.AccountMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -25,7 +26,8 @@ import java.util.Map;
  * 账户查询service实现类
  */
 @Slf4j
-@Service("accountQueryService")
+@Service(timeout = 60000,retries = 0,interfaceClass = AccountQueryService.class)
+@Component("accountQueryService")
 public class AccountQueryServiceImpl implements AccountQueryService {
 	@Autowired
 	private AccountMapper accountMapper;

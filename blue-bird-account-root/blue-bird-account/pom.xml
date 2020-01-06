@@ -154,11 +154,7 @@
                 </exclusions>
             </dependency>
 
-            <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>fastjson</artifactId>
-                <version>1.2.61</version>
-            </dependency>
+
 
             <dependency>
                 <groupId>com.alibaba</groupId>
@@ -302,6 +298,10 @@
                         <artifactId>log4j</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>apache-log4j-extras</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>org.springframework</groupId>
                         <artifactId>spring-context</artifactId>
                     </exclusion>
@@ -345,7 +345,6 @@
             <artifactId>jackson-annotations</artifactId>
             <version>2.9.9</version>
         </dependency>
-
 
         <dependency>
             <groupId>com.zhangpeng.sso</groupId>
