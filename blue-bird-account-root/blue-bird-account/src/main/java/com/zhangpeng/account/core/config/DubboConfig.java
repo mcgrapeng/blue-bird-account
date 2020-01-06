@@ -30,7 +30,7 @@ public class DubboConfig {
         Map<String,String> parameters = Maps.newHashMap();
         parameters.put("qos.enable","false");
         parameters.put("qos.accept.foreign.ip","false");
-        parameters.put("qos.port","55555");
+        parameters.put("qos.port","555555");
         applicationConfig.setParameters(parameters);
         return applicationConfig;
     }
