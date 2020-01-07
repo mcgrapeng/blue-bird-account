@@ -12,6 +12,8 @@ public class Account extends BaseEntity implements Serializable {
 
 	/** 账户编号 **/
     private String accountNo;
+
+    private String accountName;
     
     /** 账户余额 **/
     private BigDecimal balance;
@@ -98,6 +100,14 @@ public class Account extends BaseEntity implements Serializable {
 
     public void setAccountNo(String accountNo) {
         this.accountNo = accountNo == null ? null : accountNo.trim();
+    }
+
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
+    }
+
+    public String getAccountName() {
+        return accountName;
     }
 
     public BigDecimal getBalance() {

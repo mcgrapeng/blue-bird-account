@@ -7,6 +7,7 @@
     <result column="edit_time" property="editTime" jdbcType="TIMESTAMP" />
     <result column="remark" property="remark" jdbcType="VARCHAR" />
     <result column="account_no" property="accountNo" jdbcType="VARCHAR" />
+    <result column="account_name" property="accountName" jdbcType="VARCHAR" />
     <result column="balance" property="balance" jdbcType="DECIMAL" />
     <result column="unbalance" property="unbalance" jdbcType="DECIMAL" />
     <result column="security_money" property="securityMoney" jdbcType="DECIMAL" />
@@ -23,7 +24,7 @@
   <sql id="table_name">  blue_bird_account </sql>
   
   <sql id="Base_Column_List" >
-    id, create_time, edit_time, remark, account_no, balance, unbalance, security_money,
+    id, create_time, edit_time, remark, account_no,account_name, balance, unbalance, security_money,
     status, total_income, total_expend, today_income, today_expend, account_type, sett_amount, 
     user_no
   </sql>
@@ -43,13 +44,13 @@
 
   <insert id="insert" parameterType="Account" >
     insert into <include refid="table_name" />  (create_time, edit_time,
-      remark, account_no,
+      remark, account_no,account_name,
       balance, unbalance, security_money, 
-      status, total_income, total_expend, 
+      `status`, total_income, total_expend,
       today_income, today_expend, account_type, 
       sett_amount, user_no)
     values (#{createTime,jdbcType=TIMESTAMP}, #{editTime,jdbcType=TIMESTAMP},
-       #{remark,jdbcType=VARCHAR}, #{accountNo,jdbcType=VARCHAR},
+       #{remark,jdbcType=VARCHAR}, #{accountNo,jdbcType=VARCHAR},#{accountName,jdbcType=VARCHAR},
       #{balance,jdbcType=DECIMAL}, #{unbalance,jdbcType=DECIMAL}, #{securityMoney,jdbcType=DECIMAL}, 
       #{status,jdbcType=VARCHAR}, #{totalIncome,jdbcType=DECIMAL}, #{totalExpend,jdbcType=DECIMAL}, 
       #{todayIncome,jdbcType=DECIMAL}, #{todayExpend,jdbcType=DECIMAL}, #{accountType,jdbcType=VARCHAR}, 
@@ -62,6 +63,7 @@
       edit_time = #{editTime,jdbcType=TIMESTAMP},
       remark = #{remark,jdbcType=VARCHAR},
       account_no = #{accountNo,jdbcType=VARCHAR},
+      account_name = #{accountName,jdbcType=VARCHAR},
       balance = #{balance,jdbcType=DECIMAL},
       unbalance = #{unbalance,jdbcType=DECIMAL},
       security_money = #{securityMoney,jdbcType=DECIMAL},

@@ -99,6 +99,10 @@ public class AccountTransactionServiceImpl implements AccountTransactionService 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public Account creditToAccount(String userNo, BigDecimal amount, String requestNo, String bankTrxNo, String trxType, String remark) {
+		if (amount.compareTo(BigDecimal.ZERO) <=0) {
+			throw AccountBizException.ACCOUNT_AMOUNT_ILLEGAL;
+		}
+
 		Account account = this.getByUserNo_IsPessimist(userNo, true);
 		if (account == null) {
 			throw AccountBizException.ACCOUNT_NOT_EXIT;
@@ -196,6 +200,10 @@ public class AccountTransactionServiceImpl implements AccountTransactionService 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public Account debitToAccount(String userNo, BigDecimal amount, String requestNo, String bankTrxNo, String trxType, String remark) {
+		if (amount.compareTo(BigDecimal.ZERO) <=0) {
+			throw AccountBizException.ACCOUNT_AMOUNT_ILLEGAL;
+		}
+
 		Account account = this.getByUserNo_IsPessimist(userNo, true);
 		if (account == null) {
 			throw AccountBizException.ACCOUNT_NOT_EXIT;

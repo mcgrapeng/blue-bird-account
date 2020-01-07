@@ -11,6 +11,7 @@ public class AccountBizException extends BizException {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LoggerFactory.getLogger(AccountBizException.class);
 
+	public static final AccountBizException ACCOUNT_AMOUNT_ILLEGAL = new AccountBizException(10010000, "账户金额非法");
 	public static final AccountBizException ACCOUNT_NOT_EXIT = new AccountBizException(10010001, "账户不存在");
 	public static final AccountBizException ACCOUNT_SUB_AMOUNT_OUTLIMIT = new AccountBizException(10010002, "余额不足，减款超限");
 	public static final AccountBizException ACCOUNT_UN_FROZEN_AMOUNT_OUTLIMIT = new AccountBizException(10010003, "解冻金额超限");
