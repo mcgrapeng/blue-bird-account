@@ -1,6 +1,8 @@
 package com.zhangpeng.account.core.controller.intercept;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.zhangpeng.account.core.cache.RedisClientUtils;
 import com.zhangpeng.account.core.controller.RES;
 import com.zhangpeng.account.core.conts.Contant;
 import com.zhangpeng.account.core.enums.ResultEnum;
@@ -27,31 +29,46 @@ public class AuthInterceptor implements HandlerInterceptor {
      * session key 前缀
      */
     private static final String SHIRO_REDIS_SESSION_KEY_PREFIX = "blue.bird.shiro.redis.session";
+    private static final String WX_REDIS_USER_SESSION_PREFIX = "wx.auth.user.redis_";
     private final String BLUE_BIRD_JSESSIONID="BLUE-BIRD-TOKEN";
+    private static final String BLUE_BIRD_REQ_SOURCE="WX_PROGRAM";
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //无论访问的地址是不是正确的，都进行登录验证，登录成功后的访问再进行分发，404的访问自然会进入到错误控制器中
-        String sessionId = WebUtils.toHttp(request).getHeader(BLUE_BIRD_JSESSIONID);
-        if(StringUtils.isBlank(sessionId)){
-            sessionId = CookieUtils.getCookieValue(request,BLUE_BIRD_JSESSIONID);
-        }
-        if (StringUtils.isNotBlank(sessionId)) {
-            try {
-                //验证当前请求的session是否是已登录的session
-                Session session = (Session) redisTemplate.opsForValue().get(SHIRO_REDIS_SESSION_KEY_PREFIX + "_" +sessionId);
-                if (session != null && sessionId.equals(session.getId())) {
-                    User user = (User) session.getAttribute(Contant.LOGIN_KEY);
+        String aid = WebUtils.toHttp(request).getHeader("AID");
+        String sessionId;
+        if(aid.equalsIgnoreCase(BLUE_BIRD_REQ_SOURCE)){
+            sessionId = WebUtils.toHttp(request).getHeader(BLUE_BIRD_JSESSIONID);
+            if (StringUtils.isNotBlank(sessionId)) {
+
+                String userStr = RedisClientUtils.get(WX_REDIS_USER_SESSION_PREFIX + sessionId);
+                if(StringUtils.isNotBlank(userStr)){
+                    User user = JSONObject.parseObject(userStr, User.class);
                     request.setAttribute(Contant.LOGIN_KEY,user);
                     return true;
                 }
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
+            }
+        }else{
+            sessionId = CookieUtils.getCookieValue(request,BLUE_BIRD_JSESSIONID);
+            if (StringUtils.isNotBlank(sessionId)) {
+                try {
+                    //验证当前请求的session是否是已登录的session
+                    Session session = (Session) redisTemplate.opsForValue().get(SHIRO_REDIS_SESSION_KEY_PREFIX + "_" +sessionId);
+                    if (session != null && sessionId.equals(session.getId())) {
+                        User user = (User) session.getAttribute(Contant.LOGIN_KEY);
+                        request.setAttribute(Contant.LOGIN_KEY,user);
+                        return true;
+                    }
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                }
             }
         }
         response(response);
         return false;
     }
+
 
     private void response(HttpServletResponse response) {
         response.setCharacterEncoding("UTF-8");
