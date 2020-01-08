@@ -9,6 +9,7 @@ import com.zhangpeng.sso.api.domain.User;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.session.Session;
+import org.apache.shiro.web.util.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -31,8 +32,10 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //无论访问的地址是不是正确的，都进行登录验证，登录成功后的访问再进行分发，404的访问自然会进入到错误控制器中
-        //String sessionId = WebUtils.toHttp(request).getHeader(BLUE_BIRD_JSESSIONID);
-        String sessionId = CookieUtils.getCookieValue(request,BLUE_BIRD_JSESSIONID);
+        String sessionId = WebUtils.toHttp(request).getHeader(BLUE_BIRD_JSESSIONID);
+        if(StringUtils.isBlank(sessionId)){
+            sessionId = CookieUtils.getCookieValue(request,BLUE_BIRD_JSESSIONID);
+        }
         if (StringUtils.isNotBlank(sessionId)) {
             try {
                 //验证当前请求的session是否是已登录的session
