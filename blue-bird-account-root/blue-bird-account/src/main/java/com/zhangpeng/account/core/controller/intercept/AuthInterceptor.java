@@ -29,7 +29,7 @@ public class AuthInterceptor implements HandlerInterceptor {
      * session key 前缀
      */
     private static final String SHIRO_REDIS_SESSION_KEY_PREFIX = "blue.bird.shiro.redis.session";
-    private static final String WX_REDIS_USER_SESSION_PREFIX = "wx.auth.user.redis_";
+    private static final String WX_REDIS_USER_PREFIX = "wx.auth.user.redis_";
     private final String BLUE_BIRD_JSESSIONID="BLUE-BIRD-TOKEN";
     private static final String BLUE_BIRD_REQ_SOURCE="WX_PROGRAM";
 
@@ -42,7 +42,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             sessionId = WebUtils.toHttp(request).getHeader(BLUE_BIRD_JSESSIONID);
             if (StringUtils.isNotBlank(sessionId)) {
 
-                String userStr = RedisClientUtils.get(WX_REDIS_USER_SESSION_PREFIX + sessionId);
+                String userStr = RedisClientUtils.get(WX_REDIS_USER_PREFIX + sessionId);
                 if(StringUtils.isNotBlank(userStr)){
                     User user = JSONObject.parseObject(userStr, User.class);
                     request.setAttribute(Contant.LOGIN_KEY,user);
