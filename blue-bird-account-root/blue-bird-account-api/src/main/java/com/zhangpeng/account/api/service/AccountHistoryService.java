@@ -13,7 +13,7 @@ public interface AccountHistoryService {
 	 * 为用户创建账单
 	 */
 	void createAccountHistory(String requestNo ,String userNo ,String trxType
-			,String fundDirection, BigDecimal amount);
+			,String fundDirection, BigDecimal amount,String remark);
 	
 	/**
 	 * 保存

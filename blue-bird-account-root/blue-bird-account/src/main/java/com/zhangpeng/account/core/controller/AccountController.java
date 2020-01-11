@@ -1,28 +1,33 @@
 package com.zhangpeng.account.core.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.zhangpeng.account.api.AccountRES;
 import com.zhangpeng.account.api.PageBean;
 import com.zhangpeng.account.api.PageParam;
 import com.zhangpeng.account.api.domain.Account;
 import com.zhangpeng.account.api.domain.AccountHistory;
+import com.zhangpeng.account.api.enums.AccountFundDirectionEnum;
 import com.zhangpeng.account.api.enums.AccountTypeEnum;
 import com.zhangpeng.account.api.enums.PublicStatusEnum;
 import com.zhangpeng.account.api.enums.TrxTypeEnum;
+import com.zhangpeng.account.api.service.AccountHistoryService;
 import com.zhangpeng.account.api.service.AccountQueryService;
 import com.zhangpeng.account.api.service.AccountService;
 import com.zhangpeng.account.api.service.AccountTransactionService;
 import com.zhangpeng.account.core.enums.ResultEnum;
+import com.zhangpeng.account.core.utils.CommonUtils;
 import com.zhangpeng.sso.api.domain.User;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -41,10 +46,16 @@ public class AccountController extends BaseController {
     @Autowired
     private AccountTransactionService accountTransactionService;
 
+    @Autowired
+    private AccountHistoryService accountHistoryService;
+
     @RequestMapping(value = "/balance", method = RequestMethod.POST)
     @ResponseBody
     public AccountRES<Account> getBalance() {
         User user = getLoginUser();
+        if(null == user){
+            return AccountRES.of(ResultEnum.您尚未登录.code, ResultEnum.您尚未登录.name());
+        }
         String userNo = user.getUserName();
         Account account;
         try {
@@ -59,24 +70,51 @@ public class AccountController extends BaseController {
 
     @RequestMapping(value = "/withdraw", method = RequestMethod.POST)
     @ResponseBody
-    public AccountRES<Account> withdraw(@RequestParam(value = "amount", required = false) String amount) {
+    public AccountRES<Boolean> withdraw(@RequestBody @Valid AccountWithdrawREQ req, BindingResult bindingResult) {
+
         User user = getLoginUser();
-        String userNo = StringUtils.isBlank(user.getUserName()) ? user.getWxOpenId() : user.getUserName();
-        Account account;
+        if(null == user){
+            return AccountRES.of(ResultEnum.您尚未登录.code, Boolean.FALSE, ResultEnum.您尚未登录.name());
+        }
+
+        if (bindingResult.hasErrors()) {
+            String errMsg = bindingResult.getFieldError().getDefaultMessage();
+            log.error("用户提现，请求参数校验失败，{}，请求数据 {}", errMsg, JSON.toJSONString(req));
+            return AccountRES.of(ResultEnum.请求参数不完整.code, Boolean.FALSE, ResultEnum.请求参数不完整.name());
+        }
+
+        String amount = req.getAmount();
+        if (!CommonUtils.isNumber(amount)) {
+            return AccountRES.of(ResultEnum.请求参数错误.code, Boolean.FALSE, ResultEnum.请求参数错误.name());
+        }
+
+        BigDecimal withdrawAmount = new BigDecimal(amount);
+        if (withdrawAmount.compareTo(BigDecimal.ZERO) < 1) {
+            return AccountRES.of(ResultEnum.请求参数错误.code, Boolean.FALSE, ResultEnum.请求参数错误.name());
+        }
+
+
+        String userNo = user.getUserName();
         try {
-            account = accountTransactionService.debitToAccount(userNo, new BigDecimal(amount), "", TrxTypeEnum.WITHDRAW.name(), "卡卡得提现");
+            accountHistoryService.createAccountHistory("KKD" + System.currentTimeMillis()
+                    , userNo, TrxTypeEnum.WITHDRAW.name()
+                    , AccountFundDirectionEnum.SUB.name(), withdrawAmount, "用户= {" + user.getUserName() + "," + user.getNickName() + "},提现账单");
+
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return AccountRES.of(ResultEnum.您尚未绑定账户.code, ResultEnum.您尚未绑定账户.name());
+            return AccountRES.of(ResultEnum.您尚未绑定账户.code, Boolean.FALSE, ResultEnum.您尚未绑定账户.name());
         }
-        return AccountRES.of(ResultEnum.处理成功.code, account, ResultEnum.处理成功.name());
+        return AccountRES.of(ResultEnum.处理成功.code, Boolean.TRUE, ResultEnum.处理成功.name());
     }
 
 
     @RequestMapping(value = "/withdraw-record", method = RequestMethod.POST)
     @ResponseBody
-    public AccountRES<PageBean<AccountHistory>> withdrawRecord(PageParam pageParam) {
+    public AccountRES<PageBean<AccountHistory>> withdrawRecord(@RequestBody @Valid PageParam pageParam) {
         User user = getLoginUser();
+        if(null == user){
+            return AccountRES.of(ResultEnum.您尚未登录.code, ResultEnum.您尚未登录.name());
+        }
         String userNo = user.getUserName();
         Account account;
         try {
@@ -96,9 +134,19 @@ public class AccountController extends BaseController {
 
     @RequestMapping(value = "/bind-account", method = RequestMethod.POST)
     @ResponseBody
-    public AccountRES<String> bindAccount(@RequestParam(value = "accountNo", required = false) String accountNo
-            , @RequestParam(value = "accountName", required = false) String accountName) {
+    public AccountRES<Boolean> bindAccount(@RequestBody @Valid BindAccountREQ req, BindingResult bindingResult) {
         User user = getLoginUser();
+        if(null == user){
+            return AccountRES.of(ResultEnum.您尚未登录.code, Boolean.FALSE, ResultEnum.您尚未登录.name());
+        }
+        if (bindingResult.hasErrors()) {
+            String errMsg = bindingResult.getFieldError().getDefaultMessage();
+            log.error("绑定账户，请求参数校验失败，{}，请求数据 {}", errMsg, JSON.toJSONString(req));
+            return AccountRES.of(ResultEnum.请求参数不完整.code, Boolean.FALSE, ResultEnum.请求参数不完整.name());
+        }
+
+        //TODO  待优化  账户被恶意绑定
+
         String userNo = user.getUserName();
         Account account = accountService.getAccount(userNo);
         if (null == account) {
@@ -116,8 +164,8 @@ public class AccountController extends BaseController {
             account.setStatus(PublicStatusEnum.ACTIVE.name());
             account.setRemark("卡卡得账户");
             account.setCreater(userNo);
-            account.setAccountNo(accountNo);
-            account.setAccountName(accountName);
+            account.setAccountNo(req.getAccountNo());
+            account.setAccountName(req.getAccountName());
             accountService.saveData(account);
         }
         return AccountRES.of(ResultEnum.处理成功.code, ResultEnum.处理成功.name());

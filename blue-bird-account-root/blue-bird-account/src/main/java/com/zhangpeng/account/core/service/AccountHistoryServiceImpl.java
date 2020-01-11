@@ -30,20 +30,26 @@ public class AccountHistoryServiceImpl implements AccountHistoryService {
 
 	@Override
 	public void createAccountHistory(String requestNo , String userNo  ,String trxType ,String fundDirection
-			,BigDecimal amount) {
+			,BigDecimal amount,String remark) {
 
 		// 记录账户历史
 		AccountHistory accountHistoryEntity = new AccountHistory();
 		accountHistoryEntity.setCreateTime(new Date());
 		accountHistoryEntity.setEditTime(new Date());
-		accountHistoryEntity.setIsAllowSett(PublicEnum.YES.name());
+		accountHistoryEntity.setIsAllowSett(PublicEnum.NO.name());
 		accountHistoryEntity.setAmount(amount);
-		Account account = accountQueryService.getAccountByUserNo(userNo);
+		Account account = null;
+		try {
+			account = accountQueryService.getAccountByUserNo(userNo);
+		} catch (Exception e) {
+			log.error(e.getMessage(),e);
+			throw e;
+		}
 		accountHistoryEntity.setBalance(account.getBalance());
 		accountHistoryEntity.setRequestNo(requestNo);
 		accountHistoryEntity.setBankTrxNo(null);
 		accountHistoryEntity.setIsCompleteSett(PublicEnum.NO.name());
-		accountHistoryEntity.setRemark(account.getAccountName() + "的账单");
+		accountHistoryEntity.setRemark(remark);
 		accountHistoryEntity.setFundDirection(fundDirection);
 		accountHistoryEntity.setAccountNo(account.getAccountNo());
 		accountHistoryEntity.setTrxType(trxType);

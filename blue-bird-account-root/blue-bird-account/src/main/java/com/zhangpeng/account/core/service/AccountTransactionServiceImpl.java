@@ -268,7 +268,7 @@ public class AccountTransactionServiceImpl implements AccountTransactionService 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public Account freezeAmount(String userNo, BigDecimal freezeAmount) {
-		Account account = this.getByUserNo_IsPessimist(userNo, true);
+		Account account = this.getByUserNo_IsPessimist(userNo, false);
 		if (account == null) {
 			throw AccountBizException.ACCOUNT_NOT_EXIT;
 		}
@@ -304,7 +304,7 @@ public class AccountTransactionServiceImpl implements AccountTransactionService 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public Account unFreezeAmount(String userNo, BigDecimal amount, String requestNo, String trxType, String remark) {
-		Account account = this.getByUserNo_IsPessimist(userNo, true);
+		Account account = this.getByUserNo_IsPessimist(userNo, false);
 		if (account == null) {
 			throw AccountBizException.ACCOUNT_NOT_EXIT;
 		}
@@ -366,7 +366,7 @@ public class AccountTransactionServiceImpl implements AccountTransactionService 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public Account unFreezeSettAmount(String userNo, BigDecimal amount) {
-		Account account = this.getByUserNo_IsPessimist(userNo, true);
+		Account account = this.getByUserNo_IsPessimist(userNo, false);
 		if (account == null) {
 			throw AccountBizException.ACCOUNT_NOT_EXIT;
 		}
