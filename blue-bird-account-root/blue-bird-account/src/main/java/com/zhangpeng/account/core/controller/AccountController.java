@@ -41,97 +41,86 @@ public class AccountController extends BaseController {
     @Autowired
     private AccountTransactionService accountTransactionService;
 
-    @RequestMapping(value = "/balance",method = RequestMethod.POST)
+    @RequestMapping(value = "/balance", method = RequestMethod.POST)
     @ResponseBody
-    public AccountRES<Account>  getBalance(){
+    public AccountRES<Account> getBalance() {
         User user = getLoginUser();
-        String userNo = StringUtils.isBlank(user.getUserName()) ? user.getWxOpenId() : user.getUserName();
-        Account account = null;
+        String userNo = user.getUserName();
+        Account account;
         try {
             account = accountQueryService.getAccountByUserNo(userNo);
         } catch (Exception e) {
-           log.error(e.getMessage(),e);
-            return AccountRES.of(String.valueOf(ResultEnum.处理失败.code),account,ResultEnum.处理失败.name());
+            log.error(e.getMessage(), e);
+            return AccountRES.of(ResultEnum.您尚未绑定账户.code, ResultEnum.您尚未绑定账户.name());
         }
-        return AccountRES.of(String.valueOf(ResultEnum.处理成功.code),account,ResultEnum.处理成功.name());
+        return AccountRES.of(ResultEnum.处理成功.code, account, ResultEnum.处理成功.name());
     }
 
 
-    @RequestMapping(value = "/withdraw",method = RequestMethod.POST)
+    @RequestMapping(value = "/withdraw", method = RequestMethod.POST)
     @ResponseBody
-    public AccountRES<Account> withdraw(@RequestParam(value = "amount",required = false) String amount){
-        User user = getLoginUser();
-        String userNo = StringUtils.isBlank(user.getUserName()) ? user.getWxOpenId() : user.getUserName();
-        Account account = null;
-        try {
-            account = accountTransactionService.debitToAccount(userNo, new BigDecimal(amount) ,"", TrxTypeEnum.WITHDRAW.name(), "卡卡得提现");
-        } catch (Exception e) {
-            log.error(e.getMessage(),e);
-            return AccountRES.of(String.valueOf(ResultEnum.处理失败.code),account,ResultEnum.处理失败.name());
-        }
-        return AccountRES.of(String.valueOf(ResultEnum.处理成功.code),account,ResultEnum.处理成功.name());
-    }
-
-
-
-    @RequestMapping(value = "/withdraw-record",method = RequestMethod.POST)
-    @ResponseBody
-    public AccountRES<PageBean<AccountHistory>> withdrawRecord(PageParam pageParam ){
-        User user = getLoginUser();
-        String userNo = StringUtils.isBlank(user.getUserName()) ? user.getWxOpenId() : user.getUserName();
-        Account account = accountQueryService.getAccountByUserNo(userNo);
-        String accountNo = account.getAccountNo();
-        Map<String,Object> params = Maps.newHashMap();
-        params.put("accountNo",accountNo);
-        params.put("trxType", TrxTypeEnum.WITHDRAW.name());
-        PageBean<AccountHistory>  page;
-        try {
-            page = accountQueryService.pageAccountHistory(pageParam,  params);
-        } catch (Exception e) {
-            log.error(e.getMessage(),e);
-            return AccountRES.of(String.valueOf(ResultEnum.处理失败.code),ResultEnum.处理失败.name());
-        }
-        return AccountRES.of(String.valueOf(ResultEnum.处理成功.code),page,ResultEnum.处理成功.name());
-    }
-
-
-    @RequestMapping(value = "/bind-account",method = RequestMethod.POST)
-    @ResponseBody public AccountRES<String> bindAccount(@RequestParam(value = "accountNo",required = false) String accountNo
-            , @RequestParam(value = "accountName",required = false) String accountName){
+    public AccountRES<Account> withdraw(@RequestParam(value = "amount", required = false) String amount) {
         User user = getLoginUser();
         String userNo = StringUtils.isBlank(user.getUserName()) ? user.getWxOpenId() : user.getUserName();
         Account account;
         try {
-            account = accountQueryService.getAccountByUserNo(userNo);
-            if(null == account){
-                account = new Account();
-                account.setAccountType(AccountTypeEnum.USER.name());
-                account.setBalance(BigDecimal.ZERO);
-                account.setUserNo(userNo);
-                account.setTodayExpend(BigDecimal.ZERO);
-                account.setSecurityMoney(BigDecimal.ZERO);
-                account.setSettAmount(BigDecimal.ZERO);
-                account.setTodayIncome(BigDecimal.ZERO);
-                account.setTotalExpend(BigDecimal.ZERO);
-                account.setTotalIncome(BigDecimal.ZERO);
-                account.setUnbalance(BigDecimal.ZERO);
-                account.setStatus(PublicStatusEnum.ACTIVE.name());
-                account.setRemark("卡卡得账户");
-                account.setCreater(userNo);
-                account.setAccountNo(accountNo);
-                account.setAccountName(accountName);
-                try {
-                    accountService.saveData(account);
-                } catch (Exception e) {
-                    log.error(e.getMessage(),e);
-                }
-            }
-            accountService.updateData(account);
+            account = accountTransactionService.debitToAccount(userNo, new BigDecimal(amount), "", TrxTypeEnum.WITHDRAW.name(), "卡卡得提现");
         } catch (Exception e) {
-            log.error(e.getMessage(),e);
-            return AccountRES.of(String.valueOf(ResultEnum.处理失败.code),ResultEnum.处理失败.name());
+            log.error(e.getMessage(), e);
+            return AccountRES.of(ResultEnum.您尚未绑定账户.code, ResultEnum.您尚未绑定账户.name());
         }
-        return AccountRES.of(String.valueOf(ResultEnum.处理成功.code),ResultEnum.处理成功.name());
+        return AccountRES.of(ResultEnum.处理成功.code, account, ResultEnum.处理成功.name());
+    }
+
+
+    @RequestMapping(value = "/withdraw-record", method = RequestMethod.POST)
+    @ResponseBody
+    public AccountRES<PageBean<AccountHistory>> withdrawRecord(PageParam pageParam) {
+        User user = getLoginUser();
+        String userNo = user.getUserName();
+        Account account;
+        try {
+            account = accountQueryService.getAccountByUserNo(userNo);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return AccountRES.of(ResultEnum.您尚未绑定账户.code, ResultEnum.您尚未绑定账户.name());
+        }
+        String accountNo = account.getAccountNo();
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("accountNo", accountNo);
+        params.put("trxType", TrxTypeEnum.WITHDRAW.name());
+        return AccountRES.of(ResultEnum.处理成功.code
+                , accountQueryService.pageAccountHistory(pageParam, params), ResultEnum.处理成功.name());
+    }
+
+
+    @RequestMapping(value = "/bind-account", method = RequestMethod.POST)
+    @ResponseBody
+    public AccountRES<String> bindAccount(@RequestParam(value = "accountNo", required = false) String accountNo
+            , @RequestParam(value = "accountName", required = false) String accountName) {
+        User user = getLoginUser();
+        String userNo = user.getUserName();
+        Account account = accountService.getAccount(userNo);
+        if (null == account) {
+            account = new Account();
+            account.setAccountType(AccountTypeEnum.USER.name());
+            account.setBalance(BigDecimal.ZERO);
+            account.setUserNo(userNo);
+            account.setTodayExpend(BigDecimal.ZERO);
+            account.setSecurityMoney(BigDecimal.ZERO);
+            account.setSettAmount(BigDecimal.ZERO);
+            account.setTodayIncome(BigDecimal.ZERO);
+            account.setTotalExpend(BigDecimal.ZERO);
+            account.setTotalIncome(BigDecimal.ZERO);
+            account.setUnbalance(BigDecimal.ZERO);
+            account.setStatus(PublicStatusEnum.ACTIVE.name());
+            account.setRemark("卡卡得账户");
+            account.setCreater(userNo);
+            account.setAccountNo(accountNo);
+            account.setAccountName(accountName);
+            accountService.saveData(account);
+        }
+        return AccountRES.of(ResultEnum.处理成功.code, ResultEnum.处理成功.name());
     }
 
 }

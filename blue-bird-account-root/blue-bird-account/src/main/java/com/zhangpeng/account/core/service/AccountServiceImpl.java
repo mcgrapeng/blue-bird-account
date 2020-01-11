@@ -2,12 +2,15 @@
 package com.zhangpeng.account.core.service;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.google.common.collect.Maps;
 import com.zhangpeng.account.api.domain.Account;
 import com.zhangpeng.account.api.service.AccountService;
 import com.zhangpeng.account.core.mapper.AccountMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 /**
  * 账户service实现类
@@ -49,4 +52,16 @@ public class AccountServiceImpl implements AccountService {
 		return account;
 	}
 
+	@Override
+	public Account getAccount(String userNo) {
+		Account account = null;
+		Map<String,Object> params = Maps.newHashMap();
+		params.put("userNo",userNo);
+		try {
+			account = accountMapper.getBy(params);
+		} catch (Exception e) {
+			log.error(e.getMessage(),e);
+		}
+		return account;
+	}
 }

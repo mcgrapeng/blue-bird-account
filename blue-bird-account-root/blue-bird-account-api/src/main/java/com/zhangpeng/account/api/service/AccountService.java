@@ -24,4 +24,7 @@ public interface AccountService {
 	 * @return
 	 */
 	Account getDataById(Integer id);
+
+
+	Account getAccount(String userNo);
 }

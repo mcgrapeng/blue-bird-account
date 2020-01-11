@@ -2,21 +2,21 @@ package com.zhangpeng.account.api;
 
 public class AccountRES<T> {
 
-    private String code;
+    private int code;
     private T data;
     private String message;
 
-    public AccountRES(String code, T data, String message) {
+    public AccountRES(int code, T data, String message) {
         this.code = code;
         this.data = data;
         this.message= message;
     }
 
-    public String getCode() {
+    public int getCode() {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setCode(int code) {
         this.code = code;
     }
 
@@ -36,15 +36,15 @@ public class AccountRES<T> {
         this.message = message;
     }
 
-    public AccountRES(String code, String message) {
+    public AccountRES(int code, String message) {
         this(code,null,message);
     }
 
-    public static <T> AccountRES<T> of(String code, T data, String message){
+    public static <T> AccountRES<T> of(int code, T data, String message){
         return new AccountRES<>(code,data,message);
     }
 
-    public static <T> AccountRES<T> of(String code, String message){
+    public static <T> AccountRES<T> of(int code, String message){
         return new AccountRES<>(code,message);
     }
 

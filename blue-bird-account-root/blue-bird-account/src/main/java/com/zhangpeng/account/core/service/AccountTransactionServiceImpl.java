@@ -103,7 +103,7 @@ public class AccountTransactionServiceImpl implements AccountTransactionService 
 			throw AccountBizException.ACCOUNT_AMOUNT_ILLEGAL;
 		}
 
-		Account account = this.getByUserNo_IsPessimist(userNo, true);
+		Account account = this.getByUserNo_IsPessimist(userNo, false);
 		if (account == null) {
 			throw AccountBizException.ACCOUNT_NOT_EXIT;
 		}
@@ -204,7 +204,7 @@ public class AccountTransactionServiceImpl implements AccountTransactionService 
 			throw AccountBizException.ACCOUNT_AMOUNT_ILLEGAL;
 		}
 
-		Account account = this.getByUserNo_IsPessimist(userNo, true);
+		Account account = this.getByUserNo_IsPessimist(userNo, false);
 		if (account == null) {
 			throw AccountBizException.ACCOUNT_NOT_EXIT;
 		}
