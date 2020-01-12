@@ -1,20 +1,22 @@
 package com.zhangpeng.account.core.config;
 
 import com.alibaba.dubbo.config.*;
-import com.alibaba.dubbo.config.spring.context.annotation.EnableDubboConfig;
+import com.alibaba.dubbo.config.spring.context.annotation.EnableDubbo;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
 
 import java.util.Map;
 
 @Configuration
-@EnableDubboConfig
+//@EnableDubboConfig
+@EnableDubbo(scanBasePackages = "com.zhangpeng.account.core.service")
 @PropertySource("classpath:dubbo/dubbo.properties")
-@ImportResource({"classpath*:dubbo/*.xml"})
+@ComponentScan(value = {"com.zhangpeng.account.core.controller"})
+//@ImportResource({"classpath*:dubbo/*.xml"})
 public class DubboConfig {
 
     @Value("${dubbo.registry.protocol}")
@@ -51,12 +53,12 @@ public class DubboConfig {
         return protocolConfig;
     }
 
-    @Bean
+  /*  @Bean
     public MonitorConfig monitorConfig() {
         MonitorConfig monitorConfig = new MonitorConfig();
         monitorConfig.setProtocol("registry");
         return monitorConfig;
-    }
+    }*/
 
 
     @Bean

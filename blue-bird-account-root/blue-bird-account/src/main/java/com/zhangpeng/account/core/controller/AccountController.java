@@ -1,5 +1,6 @@
 package com.zhangpeng.account.core.controller;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.zhangpeng.account.api.AccountRES;
@@ -18,6 +19,7 @@ import com.zhangpeng.account.api.service.AccountTransactionService;
 import com.zhangpeng.account.core.enums.ResultEnum;
 import com.zhangpeng.account.core.utils.CommonUtils;
 import com.zhangpeng.sso.api.domain.User;
+import com.zhangpeng.sso.api.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -48,6 +50,9 @@ public class AccountController extends BaseController {
 
     @Autowired
     private AccountHistoryService accountHistoryService;
+
+    @Reference(interfaceClass = UserService.class, retries = 0, check = false, timeout = 60000)
+    private UserService userService;
 
     @RequestMapping(value = "/balance", method = RequestMethod.POST)
     @ResponseBody
@@ -93,6 +98,15 @@ public class AccountController extends BaseController {
             return AccountRES.of(ResultEnum.请求参数错误.code, Boolean.FALSE, ResultEnum.请求参数错误.name());
         }
 
+        Account account = accountService.getAccount(user.getUserName());
+        if(null == account){
+            return AccountRES.of(ResultEnum.您尚未绑定账户.code, Boolean.FALSE, ResultEnum.您尚未绑定账户.name());
+        }
+
+        if (account.getBalance().compareTo(withdrawAmount) < 1) {
+            return AccountRES.of(ResultEnum.请求参数错误.code, Boolean.FALSE, ResultEnum.请求参数错误.name());
+        }
+
 
         String userNo = user.getUserName();
         try {
@@ -110,7 +124,7 @@ public class AccountController extends BaseController {
 
     @RequestMapping(value = "/withdraw-record", method = RequestMethod.POST)
     @ResponseBody
-    public AccountRES<PageBean<AccountHistory>> withdrawRecord(@RequestBody @Valid PageParam pageParam) {
+    public AccountRES<PageBean<AccountHistory>> withdrawRecord(@RequestBody PageParam pageParam) {
         User user = getLoginUser();
         if(null == user){
             return AccountRES.of(ResultEnum.您尚未登录.code, ResultEnum.您尚未登录.name());
@@ -167,6 +181,9 @@ public class AccountController extends BaseController {
             account.setAccountNo(req.getAccountNo());
             account.setAccountName(req.getAccountName());
             accountService.saveData(account);
+            User userByUserName = userService.findUserByUserName(userNo);
+            userByUserName.setIsBindAccount(Boolean.TRUE);
+            userService.updateUser(userByUserName);
         }
         return AccountRES.of(ResultEnum.处理成功.code, ResultEnum.处理成功.name());
     }

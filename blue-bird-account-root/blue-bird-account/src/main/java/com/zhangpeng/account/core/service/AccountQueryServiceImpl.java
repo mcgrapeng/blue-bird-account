@@ -201,6 +201,9 @@ public class AccountQueryServiceImpl implements AccountQueryService {
 			log.error(e.getMessage(),e);
 		}
 
+		if(null == totalCount){
+			totalCount = 0L;
+		}
 		// 校验当前页数
 		int currentPage = PageBean.checkCurrentPage(totalCount.intValue(), pageParam.getNumPerPage(), pageParam.getPageNum());
 		pageParam.setPageNum(currentPage); // 为当前页重新设值

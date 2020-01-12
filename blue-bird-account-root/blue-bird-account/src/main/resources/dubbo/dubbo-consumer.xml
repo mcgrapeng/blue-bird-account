@@ -8,7 +8,7 @@
     http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
 
-    <dubbo:reference interface="com.zhangpeng.sso.api.service.UserService"
-                     id="userService" retries="0" timeout="60000"  check="false"  />
+<!--    <dubbo:reference interface="com.zhangpeng.sso.api.service.UserService"
+                     id="userService" retries="0" timeout="60000"  check="false"  />-->
 
 </beans>
