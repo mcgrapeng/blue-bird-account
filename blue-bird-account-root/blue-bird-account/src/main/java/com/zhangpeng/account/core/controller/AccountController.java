@@ -107,9 +107,9 @@ public class AccountController extends BaseController {
             return AccountRES.of(ResultEnum.请求参数错误.code, Boolean.FALSE, ResultEnum.请求参数错误.name());
         }
 
-
         String userNo = user.getUserName();
         try {
+            accountTransactionService.freezeAmount(user.getUserName(),withdrawAmount);
             accountHistoryService.createAccountHistory("KKD" + System.currentTimeMillis()
                     , userNo, TrxTypeEnum.WITHDRAW.name()
                     , AccountFundDirectionEnum.SUB.name(), withdrawAmount, "用户= {" + user.getUserName() + "," + user.getNickName() + "},提现账单");
@@ -141,8 +141,9 @@ public class AccountController extends BaseController {
         Map<String, Object> params = Maps.newHashMap();
         params.put("accountNo", accountNo);
         params.put("trxType", TrxTypeEnum.WITHDRAW.name());
+        PageBean<AccountHistory> pageBean = accountQueryService.pageAccountHistory(pageParam, params);
         return AccountRES.of(ResultEnum.处理成功.code
-                , accountQueryService.pageAccountHistory(pageParam, params), ResultEnum.处理成功.name());
+                ,pageBean,  ResultEnum.处理成功.name());
     }
 
 

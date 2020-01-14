@@ -225,7 +225,7 @@ public class AccountQueryServiceImpl implements AccountQueryService {
 			log.error(e.getMessage(),e);
 		}
 
-		return new PageBean<AccountHistory>(pageParam.getPageNum(), pageParam.getNumPerPage(), totalCount.intValue(), list);
+		return new PageBean<>(pageParam.getPageNum(), pageParam.getNumPerPage(), totalCount.intValue(), list);
 	}
 
 

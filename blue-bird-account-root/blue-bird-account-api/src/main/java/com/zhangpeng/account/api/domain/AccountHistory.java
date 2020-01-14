@@ -157,6 +157,6 @@ public class AccountHistory extends BaseEntity implements Serializable {
     }
 
     public String getCreateTimeDesc() {
-    	return DateUtils.formatDate(this.getCreateTime(), "yyyy-MM-dd HH:mm:ss");
+    	return DateUtils.formatDate(this.getCreateTime(), "yyyy-MM-dd");
     }
 }

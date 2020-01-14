@@ -15,7 +15,7 @@ import java.util.Map;
 //@EnableDubboConfig
 @EnableDubbo(scanBasePackages = "com.zhangpeng.account.core.service")
 @PropertySource("classpath:dubbo/dubbo.properties")
-@ComponentScan(value = {"com.zhangpeng.account.core.controller"})
+//@ComponentScan(value = {"com.zhangpeng.account.core.controller"})
 //@ImportResource({"classpath*:dubbo/*.xml"})
 public class DubboConfig {
 
