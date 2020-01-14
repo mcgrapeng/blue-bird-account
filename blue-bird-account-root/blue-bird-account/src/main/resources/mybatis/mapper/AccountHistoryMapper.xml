@@ -85,7 +85,7 @@
 		<if test="accountNo != null and accountNo !='' "> and account_no = #{accountNo}</if>
 		<if test="isAllowSett != null and isAllowSett !=''"> and is_allow_sett = #{isAllowSett}</if>
 		<if test="isCompleteSett != null and isCompleteSett != ''"> and is_complete_sett = #{isCompleteSett}</if>
-		<if test="trxType != null and trxType !=''"> and trx_type_ =#{trxType} </if>
+		<if test="trxType != null and trxType !=''"> and trx_type =#{trxType} </if>
 		<if test="fundDirection != null and  fundDirection !=''"> and fund_direction = #{fundDirection}</if>
 	</sql>
 
