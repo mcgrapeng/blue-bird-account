@@ -1,6 +1,7 @@
 package com.zhangpeng.account.core.service;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.zhangpeng.account.api.PageBean;
 import com.zhangpeng.account.api.PageParam;
@@ -201,6 +202,7 @@ public class AccountQueryServiceImpl implements AccountQueryService {
 			log.error(e.getMessage(),e);
 		}
 
+		log.info("================================totalCount,{}",totalCount);
 		if(null == totalCount){
 			totalCount = 0L;
 		}
@@ -220,7 +222,9 @@ public class AccountQueryServiceImpl implements AccountQueryService {
 		// 获取分页数据集
 		List<AccountHistory> list = null;
 		try {
+			log.info("================================paramMap,{}", JSON.toJSONString(paramMap));
 			list = accountHistoryMapper.listPage(paramMap);
+			log.info("================================list,{}", JSON.toJSONString(list));
 		} catch (Exception e) {
 			log.error(e.getMessage(),e);
 		}

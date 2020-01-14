@@ -12,6 +12,7 @@ import com.zhangpeng.account.api.enums.AccountFundDirectionEnum;
 import com.zhangpeng.account.api.enums.AccountTypeEnum;
 import com.zhangpeng.account.api.enums.PublicStatusEnum;
 import com.zhangpeng.account.api.enums.TrxTypeEnum;
+import com.zhangpeng.account.api.ex.AccountBizException;
 import com.zhangpeng.account.api.service.AccountHistoryService;
 import com.zhangpeng.account.api.service.AccountQueryService;
 import com.zhangpeng.account.api.service.AccountService;
@@ -58,9 +59,6 @@ public class AccountController extends BaseController {
     @ResponseBody
     public AccountRES<Account> getBalance() {
         User user = getLoginUser();
-        if(null == user){
-            return AccountRES.of(ResultEnum.您尚未登录.code, ResultEnum.您尚未登录.name());
-        }
         String userNo = user.getUserName();
         Account account;
         try {
@@ -76,12 +74,6 @@ public class AccountController extends BaseController {
     @RequestMapping(value = "/withdraw", method = RequestMethod.POST)
     @ResponseBody
     public AccountRES<Boolean> withdraw(@RequestBody @Valid AccountWithdrawREQ req, BindingResult bindingResult) {
-
-        User user = getLoginUser();
-        if(null == user){
-            return AccountRES.of(ResultEnum.您尚未登录.code, Boolean.FALSE, ResultEnum.您尚未登录.name());
-        }
-
         if (bindingResult.hasErrors()) {
             String errMsg = bindingResult.getFieldError().getDefaultMessage();
             log.error("用户提现，请求参数校验失败，{}，请求数据 {}", errMsg, JSON.toJSONString(req));
@@ -98,6 +90,7 @@ public class AccountController extends BaseController {
             return AccountRES.of(ResultEnum.请求参数错误.code, Boolean.FALSE, ResultEnum.请求参数错误.name());
         }
 
+        User user = getLoginUser();
         Account account = accountService.getAccount(user.getUserName());
         if(null == account){
             return AccountRES.of(ResultEnum.您尚未绑定账户.code, Boolean.FALSE, ResultEnum.您尚未绑定账户.name());
@@ -114,6 +107,8 @@ public class AccountController extends BaseController {
                     , userNo, TrxTypeEnum.WITHDRAW.name()
                     , AccountFundDirectionEnum.SUB.name(), withdrawAmount, "用户= {" + user.getUserName() + "," + user.getNickName() + "},提现账单");
 
+        } catch (AccountBizException e){
+            return AccountRES.of(AccountBizException.ACCOUNT_FROZEN_AMOUNT_OUTLIMIT.getCode(), Boolean.FALSE, AccountBizException.ACCOUNT_FROZEN_AMOUNT_OUTLIMIT.getMessage());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return AccountRES.of(ResultEnum.您尚未绑定账户.code, Boolean.FALSE, ResultEnum.您尚未绑定账户.name());
@@ -126,9 +121,6 @@ public class AccountController extends BaseController {
     @ResponseBody
     public AccountRES<PageBean<AccountHistory>> withdrawRecord(@RequestBody PageParam pageParam) {
         User user = getLoginUser();
-        if(null == user){
-            return AccountRES.of(ResultEnum.您尚未登录.code, ResultEnum.您尚未登录.name());
-        }
         String userNo = user.getUserName();
         Account account;
         try {
@@ -150,10 +142,6 @@ public class AccountController extends BaseController {
     @RequestMapping(value = "/bind-account", method = RequestMethod.POST)
     @ResponseBody
     public AccountRES<Boolean> bindAccount(@RequestBody @Valid BindAccountREQ req, BindingResult bindingResult) {
-        User user = getLoginUser();
-        if(null == user){
-            return AccountRES.of(ResultEnum.您尚未登录.code, Boolean.FALSE, ResultEnum.您尚未登录.name());
-        }
         if (bindingResult.hasErrors()) {
             String errMsg = bindingResult.getFieldError().getDefaultMessage();
             log.error("绑定账户，请求参数校验失败，{}，请求数据 {}", errMsg, JSON.toJSONString(req));
@@ -162,6 +150,7 @@ public class AccountController extends BaseController {
 
         //TODO  待优化  账户被恶意绑定
 
+        User user = getLoginUser();
         String userNo = user.getUserName();
         Account account = accountService.getAccount(userNo);
         if (null == account) {
