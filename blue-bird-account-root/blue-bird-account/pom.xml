@@ -40,7 +40,7 @@
         <dom4j.version>1.6.1</dom4j.version>
         <jdom.version>2.0.2</jdom.version>
         <javax.json-api.version>1.1.4</javax.json-api.version>
-        <commons-io.version>2.6</commons-io.version>
+        <commons-io.version>2.7</commons-io.version>
         <httpclient.version>4.5.7</httpclient.version>
 
         <fastjson.version>1.2.56</fastjson.version>
