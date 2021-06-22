@@ -1,2 +1,2 @@
 # blue-bird-account
-蓝鸟账户服务
+账户服务
